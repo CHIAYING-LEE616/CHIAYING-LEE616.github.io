@@ -2,26 +2,25 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>跑酷遊戲 - 靜態版</title>
+<title>跑酷遊戲</title>
 
 <style>
     body {
         margin: 0;
+        background: #e9e9e9;
         font-family: Arial, sans-serif;
-        background: #eaeaea;
         display: flex;
         flex-direction: column;
         align-items: center;
+        user-select: none;
     }
 
-    /* 分數區 */
     #score {
         margin-top: 20px;
         font-size: 28px;
         font-weight: bold;
     }
 
-    /* 遊戲區框 */
     #game {
         margin-top: 20px;
         width: 800px;
@@ -33,7 +32,6 @@
         overflow: hidden;
     }
 
-    /* 地面 */
     #ground {
         width: 100%;
         height: 6px;
@@ -42,7 +40,6 @@
         bottom: 0;
     }
 
-    /* 玩家角色 */
     #player {
         width: 50px;
         height: 50px;
@@ -53,37 +50,42 @@
         border-radius: 6px;
     }
 
-    /* 玩家跳躍 animation（JS 之後可用 class 控制） */
-    .jump {
-        animation: jump 0.6s ease-out;
-    }
-
-    @keyframes jump {
-        0%   { bottom: 6px; }
-        30%  { bottom: 140px; }
-        100% { bottom: 6px; }
-    }
-
-    /* 障礙物 */
     #obstacle {
         width: 40px;
         height: 40px;
         background: #ff5050;
         position: absolute;
         bottom: 6px;
-        right: -50px;
+        right: -60px;
         border-radius: 4px;
-        animation: move 1.5s linear infinite;
     }
 
-    /* 障礙物移動動畫 */
-    @keyframes move {
-        from { right: -50px; }
-        to   { right: 100%; }
+    /* Game Over 畫面 */
+    #gameOverScreen {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 32px;
+        display: none;
+    }
+
+    #restartBtn {
+        margin-top: 20px;
+        padding: 10px 30px;
+        background: #0078ff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 20px;
+        cursor: pointer;
     }
 </style>
 </head>
-
 <body>
 
 <div id="score">分數：0</div>
@@ -92,7 +94,137 @@
     <div id="player"></div>
     <div id="obstacle"></div>
     <div id="ground"></div>
+
+    <div id="gameOverScreen">
+        <div>Game Over</div>
+        <button id="restartBtn">重新開始</button>
+    </div>
 </div>
+
+<script>
+/* ----------------------------
+   變數設定
+----------------------------- */
+const player = document.getElementById("player");
+const obstacle = document.getElementById("obstacle");
+const scoreText = document.getElementById("score");
+const gameOverScreen = document.getElementById("gameOverScreen");
+const restartBtn = document.getElementById("restartBtn");
+
+let isGameOver = false;
+let jumpCount = 0;   // 雙重跳
+let velocity = 0;    // Y軸速度
+let gravity = -0.6;  // 重力
+let y = 6;           // 角色高度
+let score = 0;
+
+/* 障礙物速度（會隨機） */
+let obstacleSpeed = randomSpeed();
+
+/* ----------------------------
+   障礙物隨機速度
+----------------------------- */
+function randomSpeed() {
+    return -(6 + Math.random() * 6); // -6 ~ -12 px/frame
+}
+
+/* ----------------------------
+   監聽鍵盤：Space 或 ↑ 可以跳
+----------------------------- */
+document.addEventListener("keydown", e => {
+    if (e.code === "Space" || e.code === "ArrowUp") {
+        jump();
+    }
+});
+
+/* 手機輕觸跳躍 */
+document.addEventListener("touchstart", jump);
+
+/* ----------------------------
+   跳躍（雙重跳）
+----------------------------- */
+function jump() {
+    if (isGameOver) return;
+
+    if (jumpCount < 2) {
+        velocity = 12;  // 跳躍初速度
+        jumpCount++;
+    }
+}
+
+/* ----------------------------
+   遊戲主迴圈
+----------------------------- */
+function gameLoop() {
+    if (isGameOver) return;
+
+    /* 玩家物理（重力 + 跳躍） */
+    y += velocity;
+    velocity += gravity;
+
+    if (y < 6) {
+        y = 6;
+        velocity = 0;
+        jumpCount = 0; // 角色落地 → 重置跳躍次數
+    }
+
+    player.style.bottom = y + "px";
+
+    /* 障礙物移動 */
+    let x = obstacle.offsetLeft + obstacleSpeed;
+    obstacle.style.left = x + "px";
+
+    /* 超出左邊 → 重生 + 新速度 */
+    if (x < -60) {
+        obstacle.style.left = "840px";
+        obstacleSpeed = randomSpeed();
+    }
+
+    /* 碰撞判定 */
+    let p = player.getBoundingClientRect();
+    let o = obstacle.getBoundingClientRect();
+
+    let crash =
+        p.right > o.left &&
+        p.left < o.right &&
+        p.bottom > o.top &&
+        p.top < o.bottom;
+
+    if (crash) {
+        endGame();
+        return;
+    }
+
+    /* 分數增加 */
+    score++;
+    scoreText.innerText = "分數：" + score;
+
+    requestAnimationFrame(gameLoop);
+}
+
+/* ----------------------------
+   遊戲結束
+----------------------------- */
+function endGame() {
+    isGameOver = true;
+    gameOverScreen.style.display = "flex";
+}
+
+/* ----------------------------
+   重新開始
+----------------------------- */
+restartBtn.onclick = () => {
+    location.reload();
+};
+
+/* ----------------------------
+   開始遊戲
+----------------------------- */
+requestAnimationFrame(gameLoop);
+</script>
+
+</body>
+</html>
 
 </body>
 </html>
