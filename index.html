@@ -1,11 +1,98 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>leeeeeeの網頁</title>
-    <link rel="icon" href="icon.png">
-  </head>
-  <body>
-    zrzrzryyy & cy & cortis
-  </body>
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>跑酷遊戲 - 靜態版</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #eaeaea;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* 分數區 */
+    #score {
+        margin-top: 20px;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    /* 遊戲區框 */
+    #game {
+        margin-top: 20px;
+        width: 800px;
+        height: 300px;
+        background: #ffffff;
+        border: 4px solid #333;
+        border-radius: 8px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* 地面 */
+    #ground {
+        width: 100%;
+        height: 6px;
+        background: #333;
+        position: absolute;
+        bottom: 0;
+    }
+
+    /* 玩家角色 */
+    #player {
+        width: 50px;
+        height: 50px;
+        background: #0078ff;
+        position: absolute;
+        bottom: 6px;
+        left: 50px;
+        border-radius: 6px;
+    }
+
+    /* 玩家跳躍 animation（JS 之後可用 class 控制） */
+    .jump {
+        animation: jump 0.6s ease-out;
+    }
+
+    @keyframes jump {
+        0%   { bottom: 6px; }
+        30%  { bottom: 140px; }
+        100% { bottom: 6px; }
+    }
+
+    /* 障礙物 */
+    #obstacle {
+        width: 40px;
+        height: 40px;
+        background: #ff5050;
+        position: absolute;
+        bottom: 6px;
+        right: -50px;
+        border-radius: 4px;
+        animation: move 1.5s linear infinite;
+    }
+
+    /* 障礙物移動動畫 */
+    @keyframes move {
+        from { right: -50px; }
+        to   { right: 100%; }
+    }
+</style>
+</head>
+
+<body>
+
+<div id="score">分數：0</div>
+
+<div id="game">
+    <div id="player"></div>
+    <div id="obstacle"></div>
+    <div id="ground"></div>
+</div>
+
+</body>
 </html>
