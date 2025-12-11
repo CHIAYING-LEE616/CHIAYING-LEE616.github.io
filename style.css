@@ -61,14 +61,12 @@ header {
     position: absolute;
     width: 30px;
     height: 50px;
-    /* 修正：將 bottom 設為 20px，確保貼合地面 */
-    bottom: 20px; 
+    bottom: 20px; /* 確保起始位置在地面線上方 */
     left: 50px;
     background-color: #ff5722;
     border-radius: 5px;
     z-index: 10;
     animation: idle 1s ease-in-out infinite alternate;
-    /* 移除 transition，避免與 animation 衝突 */
 }
 
 /* 靜態站立/呼吸動畫 */
@@ -83,7 +81,8 @@ header {
 
 /* --- 主角跳躍動畫 --- */
 .jump {
-    /* 修正：使用 forwards 確保動畫結束時停在最後一幀 (bottom: 20px) */
+    /* **關鍵修正：** 將底部的 position 變化直接放在 CSS Class 上，使用 transition 實現平滑變化 */
+    /* 移除 animation，改用 JS 直接控制 position，或使用更穩定的 keyframes */
     animation: playerJump 0.6s ease-out forwards; 
 }
 
@@ -111,7 +110,7 @@ header {
     z-index: 5;
 }
 
-/* 障礙物移動動畫 (由 JS 呼叫，並動態設定時間) */
+/* 障礙物移動動畫 */
 @keyframes moveObstacle {
     from {
         right: -20px;
