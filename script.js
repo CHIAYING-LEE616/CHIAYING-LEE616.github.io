@@ -11,13 +11,13 @@ let jumpCount = 0;
 let isGameOver = true;
 let score = 0;
 
-const MAX_JUMPS = 2;        
-const GROUND_POSITION = 20; 
-const JUMP_VELOCITY = 15;   
-const GRAVITY = 1;          
-const UPDATE_INTERVAL = 20; 
+const MAX_JUMPS = 2;        // 雙重跳限制
+const GROUND_POSITION = 20; // 主角在地面時的 bottom 值 (px)
+const JUMP_VELOCITY = 15;   // 每次跳躍的起始速度
+const GRAVITY = 1;          // 模擬重力加速度
+const UPDATE_INTERVAL = 20; // 遊戲更新間隔 (毫秒)
 
-let velocityY = 0; 
+let velocityY = 0; // 主角垂直速度
 let jumpTimer = null; 
 let scoreInterval;    
 
@@ -26,13 +26,16 @@ let scoreInterval;
 function applyGravity() {
     let currentBottom = parseInt(window.getComputedStyle(player).bottom);
     
+    // 應用重力
     velocityY -= GRAVITY;     
     currentBottom += velocityY; 
 
+    // 落地檢查
     if (currentBottom <= GROUND_POSITION) {
         currentBottom = GROUND_POSITION;
         player.style.bottom = `${currentBottom}px`;
         
+        // 落地清理：重置跳躍計數和定時器
         velocityY = 0;
         isJumping = false;
         jumpCount = 0;          
@@ -70,20 +73,28 @@ function handleJump() {
 }
 
 
-// --- 4. 障礙物生成與移動 (速度調整區) ---
+// --- 4. 障礙物生成與移動 (速度和高度調整) ---
 function generateObstacle() {
+    // 步驟 1: 移除舊的動畫，將障礙物重置到右側起始點
     obstacle.style.animation = 'none';
-    obstacle.style.right = '-20px'; 
+    obstacle.style.right = '-40px'; 
     
+    // 步驟 2: 強制瀏覽器重繪
     void obstacle.offsetWidth;
     
-    // 關鍵調整：縮短動畫時間範圍 (1.0 秒 ~ 2.5 秒) 以加快速度
+    // 步驟 3: 設置隨機速度和隨機高度
+    
+    // 障礙物速度：縮短動畫時間範圍 (1.0 秒 ~ 2.5 秒) 以加快速度
     const randomDuration = Math.random() * 1.5 + 1.0; 
-    const randomHeight = Math.random() < 0.5 ? 40 : 60; 
     
-    obstacle.style.height = `${randomHeight}px`;
-    obstacle.style.width = '20px';
+    // 障礙物高度：隨機高度 (例如 50px 到 100px 之間)，配合 CSS 百分比縮放
+    const randomHeight = Math.random() * 50 + 50; 
     
+    // 應用尺寸
+    obstacle.style.height = `${randomHeight}px`; 
+    obstacle.style.width = `40px`;
+    
+    // 步驟 4: 啟動新動畫
     obstacle.style.animation = `moveObstacle ${randomDuration}s linear forwards`; 
 }
 
@@ -120,6 +131,7 @@ function gameOver() {
     player.style.animation = 'none'; 
     groundLine.style.animation = 'none'; 
     
+    // 確保障礙物停止並回到初始狀態
     obstacle.style.animation = 'none'; 
     obstacle.style.right = '-20px'; 
     
@@ -135,7 +147,7 @@ function gameLoop() {
     }
 }
 
-// --- 8. 遊戲啟動 (分數調整區) ---
+// --- 8. 遊戲啟動 ---
 function startGame() {
     if (!isGameOver) return; 
 
@@ -155,11 +167,11 @@ function startGame() {
     // 遊戲開始時立刻生成第一個障礙物
     generateObstacle(); 
     
-    // 關鍵調整：縮短分數間隔時間，讓分數跳得更快
+    // 分數增加速度：每 50 毫秒增加一次分數 (速度加倍)
     scoreInterval = setInterval(() => {
         score++;
         scoreDisplay.textContent = `分數: ${Math.floor(score / 10)}`;
-    }, 50); // 從 100ms 縮短為 50ms
+    }, 50); 
 
     startJumpLoop(); 
     
@@ -183,6 +195,7 @@ gameContainer.addEventListener('click', () => {
 
 // --- 10. 監聽障礙物動畫結束，自動生成下一個障礙物 ---
 obstacle.addEventListener('animationend', (event) => {
+    // 確保只響應 moveObstacle 動畫，並在遊戲進行中
     if (event.animationName === 'moveObstacle' && !isGameOver) {
         generateObstacle();
     }
