@@ -20,8 +20,8 @@ const UPDATE_INTERVAL = 20; // 遊戲更新間隔 (毫秒)
 let velocityY = 0; // 主角垂直速度
 let jumpTimer = null; // 確保初始值為 null
 
-let obstacleInterval; 
 let scoreInterval;    
+// 移除 obstacleInterval 變數，改用事件監聽控制障礙物生成
 
 // --- 3. 核心功能：使用 JS 控制跳躍 (物理模擬) ---
 
@@ -83,11 +83,18 @@ function handleJump() {
 
 // --- 4. 障礙物生成與移動 ---
 function generateObstacle() {
+    // 步驟 1: 停止舊動畫，重置位置
     obstacle.style.animation = 'none';
+    
+    // 步驟 2: 設置隨機速度和高度
+    // 速度 (持續時間) 隨機，讓遊戲更有趣
     const randomDuration = Math.random() * 2.5 + 1.5; 
     const randomHeight = Math.random() < 0.5 ? 40 : 60; 
+    
     obstacle.style.height = `${randomHeight}px`;
     obstacle.style.width = '20px';
+    
+    // 步驟 3: 啟動新動畫
     obstacle.style.animation = `moveObstacle ${randomDuration}s linear forwards`; 
 }
 
@@ -117,7 +124,7 @@ function checkCollision() {
 function gameOver() {
     isGameOver = true;
     
-    clearInterval(obstacleInterval);
+    // 停止所有定時器和動畫
     clearInterval(scoreInterval);
     clearInterval(jumpTimer); 
     jumpTimer = null;
@@ -146,24 +153,26 @@ function startGame() {
     score = 0;
     jumpCount = 0;
     
+    // 恢復動畫和位置
     player.style.animation = ''; 
     groundLine.style.animation = ''; 
-    player.style.bottom = `${GROUND_POSITION}px`; // 確保主角在地面
+    player.style.bottom = `${GROUND_POSITION}px`; 
 
+    // 重置障礙物
     obstacle.style.right = '-20px'; 
     obstacle.style.height = '40px'; 
     
     scoreDisplay.textContent = '分數: 0'; 
     
+    // 啟動第一個障礙物
     generateObstacle();
-    obstacleInterval = setInterval(generateObstacle, 3000); 
-    
+    // 移除 setInterval，改由 animationend 處理後續生成
+
     scoreInterval = setInterval(() => {
         score++;
         scoreDisplay.textContent = `分數: ${Math.floor(score / 10)}`;
     }, 100);
 
-    // 啟動重力循環，確保主角可以落地
     startJumpLoop(); 
     
     requestAnimationFrame(gameLoop);
@@ -181,6 +190,15 @@ document.addEventListener('keydown', (event) => {
 // 監聽點擊事件
 gameContainer.addEventListener('click', () => {
     handleJump();
+});
+
+
+// --- 10. 監聽障礙物動畫結束，自動生成下一個障礙物 (NEW!) ---
+obstacle.addEventListener('animationend', (event) => {
+    // 只有當 moveObstacle 動畫結束且遊戲尚未結束時才生成下一個
+    if (event.animationName === 'moveObstacle' && !isGameOver) {
+        generateObstacle();
+    }
 });
 
 
