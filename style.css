@@ -67,7 +67,6 @@ header {
     border-radius: 5px;
     z-index: 10;
     animation: idle 1s ease-in-out infinite alternate;
-    /* 已移除任何跳躍動畫 */
 }
 
 /* 靜態站立/呼吸動畫 */
@@ -80,27 +79,58 @@ header {
     }
 }
 
-/* --- 障礙物 樣式 --- */
+/* ------------------------------------------------------------------ */
+/* --- 障礙物 (樹木) 樣式修正區 --- */
+/* ------------------------------------------------------------------ */
+
 #obstacle {
     position: absolute;
-    width: 20px;
-    height: 40px;
+    /* 樹木的基礎寬高，將由 JS 根據障礙物類型設定 */
+    width: 40px; 
+    height: 60px;
     bottom: 20px; 
-    right: -20px; 
-    background-color: #e91e63; 
-    border-radius: 3px;
+    right: -40px; 
     z-index: 5;
+    /* 移除 background-color: #e91e63; */
+}
+
+/* 使用 ::before 繪製樹幹 (棕色長方形) */
+#obstacle::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;        /* 樹幹寬度 */
+    height: 50%;        /* 樹幹高度 (佔 #obstacle 的 50%) */
+    background-color: #8B4513; /* 棕色 */
+    border-radius: 2px;
+}
+
+/* 使用 ::after 繪製樹冠 (綠色圓形) */
+#obstacle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;        /* 樹冠寬度 (與 #obstacle 相同) */
+    height: 40px;       /* 樹冠高度 */
+    background-color: #4CAF50; /* 綠色 */
+    border-radius: 50%; /* 圓形 */
 }
 
 /* 障礙物移動動畫 (由 JS 呼叫，並動態設定時間) */
 @keyframes moveObstacle {
     from {
-        right: -20px;
+        right: -40px; /* 將起始點設為 #obstacle 寬度 */
     }
     to {
         right: 100%;
     }
 }
+
+/* ------------------------------------------------------------------ */
 
 /* --- 分數顯示 --- */
 #score-display {
