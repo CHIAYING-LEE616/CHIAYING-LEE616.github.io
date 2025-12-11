@@ -1,27 +1,172 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高中期末專題：跑酷遊戲</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>跑酷遊戲</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        font-family: "Arial";
+        background: linear-gradient(#87CEEB, #e0f7ff);
+    }
+
+    /* --- 遊戲區域 --- */
+    #game {
+        width: 100vw;
+        height: 350px;
+        background: url('https://i.imgur.com/2JYQG3E.png') repeat-x;
+        background-size: cover;
+        position: relative;
+        overflow: hidden;
+        border-bottom: 6px solid #444;
+    }
+
+    /* --- 玩家角色（可換圖） --- */
+    #player {
+        width: 60px;
+        height: 60px;
+        background: url('https://i.imgur.com/Yy3F4xF.png');
+        background-size: cover;
+        position: absolute;
+        bottom: 0;
+        left: 80px;
+    }
+
+    /* --- 障礙物（可換圖） --- */
+    #obstacle {
+        width: 55px;
+        height: 55px;
+        background: url('https://i.imgur.com/VW9wUfk.png');
+        background-size: cover;
+        position: absolute;
+        bottom: 0;
+        right: -100px;
+    }
+
+    /* --- 分數 --- */
+    #score {
+        position: absolute;
+        top: 15px;
+        left: 20px;
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    /* --- Game Over 畫面 --- */
+    #gameOver {
+        position: absolute;
+        width: 100%;
+        height: 350px;
+        background: rgba(0,0,0,0.5);
+        top: 0;
+        left: 0;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 42px;
+        font-weight: bold;
+    }
+</style>
 </head>
+
 <body>
-    <header>
-        <h1>跑酷大挑戰！</h1>
-        <p>按下「Space」或「上鍵」開始/跳躍 (支持雙重跳)</p>
-    </header>
 
-    <main id="game-container">
-        <div id="score-display">分數: 0</div>
-        
-        <div id="player"></div> <div id="obstacle"></div> <div id="ground-line"></div>
-    </main>
+<div id="game">
+    <div id="player"></div>
+    <div id="obstacle"></div>
+    <div id="score">分數：0</div>
+    <div id="gameOver">GAME OVER<br><small>按 Enter 重新開始</small></div>
+</div>
 
-    <footer>
-        &copy; 2025 專題製作
-    </footer>
+<script>
+/* --- 變數 --- */
+const player = document.getElementById("player");
+const obstacle = document.getElementById("obstacle");
+const scoreText = document.getElementById("score");
+const gameOverScreen = document.getElementById("gameOver");
 
-    <script src="script.js"></script>
+let bottom = 0;
+let gravity = 3.8;
+let jumpPower = 14;
+let velocity = 0;
+
+let isGameOver = false;
+let score = 0;
+let jumpCount = 0;    // 計算跳躍次數（雙重跳用途）
+
+/* --- 角色跳躍 --- */
+function jump() {
+    if (isGameOver) return;
+
+    if (jumpCount < 2) { // 雙重跳
+        velocity = jumpPower;
+        jumpCount++;
+    }
+}
+
+/* --- 障礙物移動（隨機速度） --- */
+let obsSpeed = 8;
+
+function resetObstacle() {
+    obstacle.style.right = "-80px";
+    obsSpeed = Math.random() * 6 + 6; // 隨機 6~12
+}
+
+/* --- 遊戲主要迴圈 --- */
+function gameLoop() {
+    if (isGameOver) return;
+
+    /* 玩家重力與跳躍 */
+    velocity -= gravity;
+    bottom += velocity;
+    if (bottom < 0) {
+        bottom = 0;
+        velocity = 0;
+        jumpCount = 0; // 落地後可再次雙重跳
+    }
+    player.style.bottom = bottom + "px";
+
+    /* 障礙物移動 */
+    let obstacleRight = parseFloat(obstacle.style.right);
+    obstacleRight += obsSpeed;
+    obstacle.style.right = obstacleRight + "px";
+
+    if (obstacleRight > window.innerWidth + 100) {
+        resetObstacle();
+        score += 1;
+        scoreText.textContent = "分數：" + score;
+    }
+
+    /* 碰撞偵測 */
+    let playerRect = player.getBoundingClientRect();
+    let obsRect = obstacle.getBoundingClientRect();
+
+    if (
+        playerRect.left < obsRect.right &&
+        playerRect.right > obsRect.left &&
+        playerRect.bottom > obsRect.top &&
+        playerRect.top < obsRect.bottom
+    ) {
+        isGameOver = true;
+        gameOverScreen.style.display = "flex";
+    }
+
+    requestAnimationFrame(gameLoop);
+}
+gameLoop();
+
+/* --- 鍵盤控制 --- */
+document.addEventListener("keydown", e => {
+    if (e.code === "Space" || e.code === "ArrowUp") jump();
+    if (e.code === "Enter" && isGameOver) location.reload();
+});
+
+/* --- 手機觸控控制 --- */
+document.addEventListener("touchstart", jump);
+</script>
+
 </body>
 </html>
