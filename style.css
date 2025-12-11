@@ -11,7 +11,7 @@ body {
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    background-color: #f0f8ff; /* 淺藍色背景 */
+    background-color: #f0f8ff; 
     color: #333;
     padding: 20px;
 }
@@ -25,11 +25,11 @@ header {
 #game-container {
     position: relative;
     width: 80%;
-    max-width: 900px; /* 設定最大寬度 */
+    max-width: 900px;
     height: 300px;
-    border: 5px solid #4caf50; /* 遊戲邊框 */
-    overflow: hidden; /* 隱藏超出遊戲區域的元素 */
-    background: linear-gradient(to top, #7ed6df 0%, #a29bfe 100%); /* 天空背景 */
+    border: 5px solid #4caf50;
+    overflow: hidden;
+    background: linear-gradient(to top, #7ed6df 0%, #a29bfe 100%);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
 }
@@ -40,7 +40,7 @@ header {
     bottom: 0;
     width: 100%;
     height: 20px;
-    background-color: #4CAF50; /* 地面顏色 (綠色) */
+    background-color: #4CAF50;
     background-image: linear-gradient(90deg, #388e3c 10%, #4CAF50 50%, #388e3c 90%);
     background-size: 200px 20px;
     animation: moveGround 1s linear infinite;
@@ -61,13 +61,14 @@ header {
     position: absolute;
     width: 30px;
     height: 50px;
-    bottom: 20px; /* 貼著地面線 */
+    /* 修正：將 bottom 設為 20px，確保貼合地面 */
+    bottom: 20px; 
     left: 50px;
-    background-color: #ff5722; /* 主角顏色 (橙色) */
+    background-color: #ff5722;
     border-radius: 5px;
     z-index: 10;
     animation: idle 1s ease-in-out infinite alternate;
-    transition: bottom 0.1s ease-out; /* 增加過渡效果使跳躍更順暢 */
+    /* 移除 transition，避免與 animation 衝突 */
 }
 
 /* 靜態站立/呼吸動畫 */
@@ -82,19 +83,19 @@ header {
 
 /* --- 主角跳躍動畫 --- */
 .jump {
-    /* animation 由 JS 動態控制，這裡只確保 transition 效果 */
+    /* 修正：使用 forwards 確保動畫結束時停在最後一幀 (bottom: 20px) */
     animation: playerJump 0.6s ease-out forwards; 
 }
 
 @keyframes playerJump {
     0% {
-        bottom: 20px; /* 起始位置 (地面) */
+        bottom: 20px; 
     }
     50% {
-        bottom: 150px; /* 最高點 (跳躍高度) */
+        bottom: 150px; /* 跳躍最高點 */
     }
     100% {
-        bottom: 20px; /* 結束位置 (回到地面) */
+        bottom: 20px; /* 結束點：回到地面位置 */
     }
 }
 
@@ -103,21 +104,20 @@ header {
     position: absolute;
     width: 20px;
     height: 40px;
-    bottom: 20px; /* 貼著地面線 */
-    right: -20px; /* 初始位置在畫面右側外 */
-    background-color: #e91e63; /* 障礙物顏色 (紅色) */
+    bottom: 20px; 
+    right: -20px; 
+    background-color: #e91e63; 
     border-radius: 3px;
     z-index: 5;
-    /* 注意：這裡不設定 animation，由 JS 隨機控制速度 */
 }
 
 /* 障礙物移動動畫 (由 JS 呼叫，並動態設定時間) */
 @keyframes moveObstacle {
     from {
-        right: -20px; /* 從右側外開始 */
+        right: -20px;
     }
     to {
-        right: 100%; /* 移動到左側外 */
+        right: 100%;
     }
 }
 
