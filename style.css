@@ -1,0 +1,139 @@
+/* --- 基礎重置與字體 --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f8ff; 
+    color: #333;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* --- 遊戲容器樣式 --- */
+#game-container {
+    position: relative;
+    width: 80%;
+    max-width: 900px;
+    height: 300px;
+    border: 5px solid #4caf50;
+    overflow: hidden;
+    background: linear-gradient(to top, #7ed6df 0%, #a29bfe 100%);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+/* --- 地板線/跑道 --- */
+#ground-line {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 20px;
+    background-color: #4CAF50;
+    background-image: linear-gradient(90deg, #388e3c 10%, #4CAF50 50%, #388e3c 90%);
+    background-size: 200px 20px;
+    animation: moveGround 1s linear infinite;
+}
+
+/* 地面移動動畫 */
+@keyframes moveGround {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: -200px 0;
+    }
+}
+
+/* --- 跑酷者 (主角) 樣式 --- */
+#player {
+    position: absolute;
+    width: 30px;
+    height: 50px;
+    /* 確保起始位置在地面線上方 */
+    bottom: 20px; 
+    left: 50px;
+    background-color: #ff5722;
+    border-radius: 5px;
+    z-index: 10;
+    animation: idle 1s ease-in-out infinite alternate;
+}
+
+/* 靜態站立/呼吸動畫 */
+@keyframes idle {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-2px);
+    }
+}
+
+/* --- 主角跳躍動畫 --- */
+.jump {
+    /* 使用 forwards 確保動畫結束時停在最後一幀 (bottom: 20px) */
+    animation: playerJump 0.6s ease-out forwards; 
+}
+
+@keyframes playerJump {
+    0% {
+        bottom: 20px; 
+    }
+    50% {
+        bottom: 150px; /* 跳躍最高點 */
+    }
+    100% {
+        bottom: 20px; /* 結束點：回到地面位置 */
+    }
+}
+
+/* --- 障礙物 樣式 --- */
+#obstacle {
+    position: absolute;
+    width: 20px;
+    height: 40px;
+    bottom: 20px; 
+    right: -20px; 
+    background-color: #e91e63; 
+    border-radius: 3px;
+    z-index: 5;
+}
+
+/* 障礙物移動動畫 (由 JS 呼叫，並動態設定時間) */
+@keyframes moveObstacle {
+    from {
+        right: -20px;
+    }
+    to {
+        right: 100%;
+    }
+}
+
+/* --- 分數顯示 --- */
+#score-display {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px #000;
+    z-index: 20;
+}
+
+footer {
+    margin-top: 20px;
+    font-size: 0.8em;
+    color: #666;
+}
