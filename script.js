@@ -11,50 +11,43 @@ let jumpCount = 0;
 let isGameOver = true;
 let score = 0;
 
-const MAX_JUMPS = 2;        // 雙重跳限制
-const GROUND_POSITION = 20; // 主角在地面時的 bottom 值 (px)
-const JUMP_VELOCITY = 15;   // 每次跳躍的起始速度
-const GRAVITY = 1;          // 模擬重力加速度
-const UPDATE_INTERVAL = 20; // 遊戲更新間隔 (毫秒)
+const MAX_JUMPS = 2;        
+const GROUND_POSITION = 20; 
+const JUMP_VELOCITY = 15;   
+const GRAVITY = 1;          
+const UPDATE_INTERVAL = 20; 
 
-let velocityY = 0; // 主角垂直速度
-let jumpTimer = null; // 確保初始值為 null
-
+let velocityY = 0; 
+let jumpTimer = null; 
 let scoreInterval;    
-// 移除 obstacleInterval 變數，改用事件監聽控制障礙物生成
 
 // --- 3. 核心功能：使用 JS 控制跳躍 (物理模擬) ---
 
 function applyGravity() {
     let currentBottom = parseInt(window.getComputedStyle(player).bottom);
     
-    // 應用重力，減慢向上速度或加速向下速度
     velocityY -= GRAVITY;     
     currentBottom += velocityY; 
 
-    // 落地檢查：主角是否到達或穿過地面
     if (currentBottom <= GROUND_POSITION) {
         currentBottom = GROUND_POSITION;
         player.style.bottom = `${currentBottom}px`;
         
-        // ============== 落地清理 (解決「只能跳一次」的關鍵) ==============
+        // 落地清理
         velocityY = 0;
         isJumping = false;
-        jumpCount = 0;           // 歸零跳躍次數，允許下次跳躍
+        jumpCount = 0;          
         clearInterval(jumpTimer); 
-        jumpTimer = null;        // 將計時器標記為 null，允許重新啟動
-        return; // 落地後停止執行
+        jumpTimer = null;        
+        return; 
     }
-
     player.style.bottom = `${currentBottom}px`;
 }
 
 function startJumpLoop() {
-    // 避免重複啟動多個定時器
     if (jumpTimer) {
         clearInterval(jumpTimer);
     }
-    // 每 20 毫秒執行一次重力模擬
     jumpTimer = setInterval(applyGravity, UPDATE_INTERVAL); 
 }
 
@@ -70,31 +63,31 @@ function handleJump() {
 
     jumpCount++;
     isJumping = true;
-    
-    // 重設向上的初始速度，實現新鮮的跳躍或雙重跳
     velocityY = JUMP_VELOCITY; 
     
-    // 僅在定時器停止時才啟動 (落地後 jumpTimer 會被設為 null)
     if (jumpTimer === null) {
         startJumpLoop();
     }
 }
 
 
-// --- 4. 障礙物生成與移動 ---
+// --- 4. 障礙物生成與移動 (重點修正區) ---
 function generateObstacle() {
-    // 步驟 1: 停止舊動畫，重置位置
+    // 步驟 1: 移除舊的動畫，將障礙物重置到右側起始點
     obstacle.style.animation = 'none';
+    obstacle.style.right = '-20px'; // 確保位置重置
     
-    // 步驟 2: 設置隨機速度和高度
-    // 速度 (持續時間) 隨機，讓遊戲更有趣
+    // 步驟 2: 強制瀏覽器重繪，確保動畫能再次啟動
+    void obstacle.offsetWidth;
+    
+    // 步驟 3: 設置隨機速度和高度
     const randomDuration = Math.random() * 2.5 + 1.5; 
     const randomHeight = Math.random() < 0.5 ? 40 : 60; 
     
     obstacle.style.height = `${randomHeight}px`;
     obstacle.style.width = '20px';
     
-    // 步驟 3: 啟動新動畫
+    // 步驟 4: 啟動新動畫
     obstacle.style.animation = `moveObstacle ${randomDuration}s linear forwards`; 
 }
 
@@ -120,19 +113,21 @@ function checkCollision() {
 }
 
 
-// --- 6. 遊戲結束功能 ---
+// --- 6. 遊戲結束功能 (重點修正區) ---
 function gameOver() {
     isGameOver = true;
     
-    // 停止所有定時器和動畫
     clearInterval(scoreInterval);
     clearInterval(jumpTimer); 
     jumpTimer = null;
 
     player.style.animation = 'none'; 
-    obstacle.style.animation = 'none'; 
     groundLine.style.animation = 'none'; 
 
+    // 關鍵修正：確保障礙物停止並回到初始狀態，否則 animationend 不會被觸發
+    obstacle.style.animation = 'none'; 
+    obstacle.style.right = '-20px'; // 清空障礙物，等待下一輪遊戲
+    
     alert(`💥 遊戲結束！您的最終分數是: ${Math.floor(score / 10)} 分\n\n按下「Space」或「上鍵」重新開始！`);
 }
 
@@ -153,21 +148,13 @@ function startGame() {
     score = 0;
     jumpCount = 0;
     
-    // 恢復動畫和位置
     player.style.animation = ''; 
     groundLine.style.animation = ''; 
     player.style.bottom = `${GROUND_POSITION}px`; 
 
-    // 重置障礙物
-    obstacle.style.right = '-20px'; 
-    obstacle.style.height = '40px'; 
-    
-    scoreDisplay.textContent = '分數: 0'; 
-    
     // 啟動第一個障礙物
     generateObstacle();
-    // 移除 setInterval，改由 animationend 處理後續生成
-
+    
     scoreInterval = setInterval(() => {
         score++;
         scoreDisplay.textContent = `分數: ${Math.floor(score / 10)}`;
