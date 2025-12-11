@@ -82,7 +82,7 @@ header {
 
 /* --- 主角跳躍動畫 --- */
 .jump {
-    /* 使用 forwards 確保動畫結束時停在最後一幀 (bottom: 20px) */
+    /* 確保使用 forwards 停在動畫的最後一幀 */
     animation: playerJump 0.6s ease-out forwards; 
 }
 
