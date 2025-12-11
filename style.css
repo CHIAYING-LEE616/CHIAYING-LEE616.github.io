@@ -11,7 +11,7 @@ body {
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    background-color: #f0f8ff; 
+    background-color: #f0f8ff; /* 天空淺藍色 */
     color: #333;
     padding: 20px;
 }
@@ -29,6 +29,7 @@ header {
     height: 300px;
     border: 5px solid #4caf50;
     overflow: hidden;
+    /* 背景使用漸變模擬天空 */
     background: linear-gradient(to top, #7ed6df 0%, #a29bfe 100%);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
@@ -41,6 +42,7 @@ header {
     width: 100%;
     height: 20px;
     background-color: #4CAF50;
+    /* 增加紋理來模擬地面移動 */
     background-image: linear-gradient(90deg, #388e3c 10%, #4CAF50 50%, #388e3c 90%);
     background-size: 200px 20px;
     animation: moveGround 1s linear infinite;
@@ -56,15 +58,24 @@ header {
     }
 }
 
-/* --- 跑酷者 (主角) 樣式 --- */
+---
+
+/* --- 跑酷者 (主角) 樣式 - 使用自訂圖片 🖼️ --- */
 #player {
     position: absolute;
     width: 30px;
-    height: 50px;
+    height: 50px; 
     bottom: 20px; 
     left: 50px;
-    background-color: #ff5722;
-    border-radius: 5px;
+    
+    /* === 替換為您的自訂圖片路徑 === */
+    /* 請確保 'player.png' 檔案存在於您的專案根目錄 */
+    background-image: url('icon.png'); 
+    background-size: contain; 
+    background-repeat: no-repeat;
+    background-position: center; 
+    /* ============================ */
+
     z-index: 10;
     animation: idle 1s ease-in-out infinite alternate;
 }
@@ -79,15 +90,13 @@ header {
     }
 }
 
-/* ------------------------------------------------------------------ */
-/* --- 障礙物 (樹木) 樣式修正區：使用百分比高度 --- */
-/* ------------------------------------------------------------------ */
+---
 
+/* --- 障礙物 (樹木) 樣式：支援可變高度 --- */
 #obstacle {
     position: absolute;
-    /* 基礎寬度固定 */
     width: 40px; 
-    /* 高度將由 JS 隨機設定 */
+    /* 高度由 JS 隨機設定 */
     height: 60px;
     bottom: 20px; 
     right: -40px; 
@@ -102,7 +111,7 @@ header {
     left: 50%;
     transform: translateX(-50%);
     width: 10px;        /* 樹幹寬度固定 */
-    height: 30%;        /* 樹幹高度佔 #obstacle 的 30% (較小的比例，讓樹冠變化更明顯) */
+    height: 30%;        /* 樹幹高度佔 #obstacle 容器的 30% */
     background-color: #8B4513; 
     border-radius: 2px;
 }
@@ -111,17 +120,16 @@ header {
 #obstacle::after {
     content: '';
     position: absolute;
-    /* 樹冠佔據了頂部 70% 的高度 */
     top: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 40px;        /* 樹冠寬度固定 */
-    height: 70%;        /* 樹冠高度佔 #obstacle 的 70% */
+    height: 70%;        /* 樹冠高度佔 #obstacle 容器的 70% */
     background-color: #4CAF50; 
     border-radius: 50%; /* 圓形 */
 }
 
-/* 障礙物移動動畫 */
+/* 障礙物移動動畫 (由 JS 動態設定時間) */
 @keyframes moveObstacle {
     from {
         right: -40px; 
@@ -131,7 +139,7 @@ header {
     }
 }
 
-/* ------------------------------------------------------------------ */
+---
 
 /* --- 分數顯示 --- */
 #score-display {
