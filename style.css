@@ -61,13 +61,13 @@ header {
     position: absolute;
     width: 30px;
     height: 50px;
-    /* 確保起始位置在地面線上方 */
-    bottom: 20px; 
+    bottom: 20px; /* 貼合地面，此值與 JS 中的 GROUND_POSITION 變數相同 */
     left: 50px;
     background-color: #ff5722;
     border-radius: 5px;
     z-index: 10;
     animation: idle 1s ease-in-out infinite alternate;
+    /* 已移除任何跳躍動畫 */
 }
 
 /* 靜態站立/呼吸動畫 */
@@ -77,24 +77,6 @@ header {
     }
     to {
         transform: translateY(-2px);
-    }
-}
-
-/* --- 主角跳躍動畫 --- */
-.jump {
-    /* 確保使用 forwards 停在動畫的最後一幀 */
-    animation: playerJump 0.6s ease-out forwards; 
-}
-
-@keyframes playerJump {
-    0% {
-        bottom: 20px; 
-    }
-    50% {
-        bottom: 150px; /* 跳躍最高點 */
-    }
-    100% {
-        bottom: 20px; /* 結束點：回到地面位置 */
     }
 }
 
