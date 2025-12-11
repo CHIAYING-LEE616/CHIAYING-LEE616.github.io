@@ -1,4 +1,4 @@
-// --- 1. 取得 DOM 元素 (路徑修正已保留) ---
+// --- 1. 取得 DOM 元素 ---
 const player = document.getElementById('player');
 const gameContainer = document.getElementById('game-container');
 const obstacle = document.getElementById('obstacle');
@@ -7,18 +7,18 @@ const groundLine = document.getElementById('ground-line');
 
 // --- 2. 遊戲狀態變數 ---
 let isJumping = false;
-let jumpCount = 0; // 用於雙重跳
+let jumpCount = 0; 
 let isGameOver = true;
 let score = 0;
 
-const MAX_JUMPS = 2; // 雙重跳限制
+const MAX_JUMPS = 2;        // 雙重跳限制
 const GROUND_POSITION = 20; // 主角在地面時的 bottom 值 (px)
 const JUMP_VELOCITY = 15;   // 每次跳躍的起始速度
 const GRAVITY = 1;          // 模擬重力加速度
 const UPDATE_INTERVAL = 20; // 遊戲更新間隔 (毫秒)
 
 let velocityY = 0; // 主角垂直速度
-let jumpTimer;     // 儲存跳躍計時器 ID
+let jumpTimer = null; // 確保初始值為 null
 
 let obstacleInterval; 
 let scoreInterval;    
@@ -26,35 +26,31 @@ let scoreInterval;
 // --- 3. 核心功能：使用 JS 控制跳躍 (物理模擬) ---
 
 function applyGravity() {
-    // 獲取當前主角的底部位置
     let currentBottom = parseInt(window.getComputedStyle(player).bottom);
     
-    // 僅在主角不在地面時應用重力
-    if (currentBottom > GROUND_POSITION || velocityY > 0) {
-        velocityY -= GRAVITY; // 速度因重力遞減
-        currentBottom += velocityY; // 根據速度更新位置
-        
-        // 確保主角不會穿過地面
-        if (currentBottom < GROUND_POSITION) {
-            currentBottom = GROUND_POSITION;
-            velocityY = 0;
-            isJumping = false;
-            jumpCount = 0; // 重置跳躍計數
-            clearInterval(jumpTimer); // 停止跳躍循環
-        }
+    // 應用重力，減慢向上速度或加速向下速度
+    velocityY -= GRAVITY;     
+    currentBottom += velocityY; 
 
+    // 落地檢查：主角是否到達或穿過地面
+    if (currentBottom <= GROUND_POSITION) {
+        currentBottom = GROUND_POSITION;
         player.style.bottom = `${currentBottom}px`;
-    } else {
-         // 在地面時確保狀態正確
-         isJumping = false;
-         jumpCount = 0;
-         velocityY = 0;
-         clearInterval(jumpTimer);
+        
+        // ============== 落地清理 (解決「只能跳一次」的關鍵) ==============
+        velocityY = 0;
+        isJumping = false;
+        jumpCount = 0;           // 歸零跳躍次數，允許下次跳躍
+        clearInterval(jumpTimer); 
+        jumpTimer = null;        // 將計時器標記為 null，允許重新啟動
+        return; // 落地後停止執行
     }
+
+    player.style.bottom = `${currentBottom}px`;
 }
 
 function startJumpLoop() {
-    // 避免重複啟動多個跳躍循環
+    // 避免重複啟動多個定時器
     if (jumpTimer) {
         clearInterval(jumpTimer);
     }
@@ -75,17 +71,17 @@ function handleJump() {
     jumpCount++;
     isJumping = true;
     
-    // 給予向上的初始速度
+    // 重設向上的初始速度，實現新鮮的跳躍或雙重跳
     velocityY = JUMP_VELOCITY; 
     
-    // 如果跳躍循環沒有運行，則啟動它
-    if (!jumpTimer) {
+    // 僅在定時器停止時才啟動 (落地後 jumpTimer 會被設為 null)
+    if (jumpTimer === null) {
         startJumpLoop();
     }
 }
 
 
-// --- 4. 障礙物生成與移動 (邏輯不變) ---
+// --- 4. 障礙物生成與移動 ---
 function generateObstacle() {
     obstacle.style.animation = 'none';
     const randomDuration = Math.random() * 2.5 + 1.5; 
@@ -96,7 +92,7 @@ function generateObstacle() {
 }
 
 
-// --- 5. 碰撞檢測 (邏輯不變) ---
+// --- 5. 碰撞檢測 ---
 function checkCollision() {
     if (isGameOver) return;
     
@@ -123,7 +119,8 @@ function gameOver() {
     
     clearInterval(obstacleInterval);
     clearInterval(scoreInterval);
-    clearInterval(jumpTimer); // 停止跳躍循環
+    clearInterval(jumpTimer); 
+    jumpTimer = null;
 
     player.style.animation = 'none'; 
     obstacle.style.animation = 'none'; 
@@ -166,7 +163,7 @@ function startGame() {
         scoreDisplay.textContent = `分數: ${Math.floor(score / 10)}`;
     }, 100);
 
-    // 遊戲啟動時啟動重力循環，確保主角可以落地
+    // 啟動重力循環，確保主角可以落地
     startJumpLoop(); 
     
     requestAnimationFrame(gameLoop);
