@@ -80,50 +80,51 @@ header {
 }
 
 /* ------------------------------------------------------------------ */
-/* --- 障礙物 (樹木) 樣式修正區 --- */
+/* --- 障礙物 (樹木) 樣式修正區：使用百分比高度 --- */
 /* ------------------------------------------------------------------ */
 
 #obstacle {
     position: absolute;
-    /* 樹木的基礎寬高，將由 JS 根據障礙物類型設定 */
+    /* 基礎寬度固定 */
     width: 40px; 
+    /* 高度將由 JS 隨機設定 */
     height: 60px;
     bottom: 20px; 
     right: -40px; 
     z-index: 5;
-    /* 移除 background-color: #e91e63; */
 }
 
-/* 使用 ::before 繪製樹幹 (棕色長方形) */
+/* 繪製樹幹 (棕色長方形) */
 #obstacle::before {
     content: '';
     position: absolute;
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 10px;        /* 樹幹寬度 */
-    height: 50%;        /* 樹幹高度 (佔 #obstacle 的 50%) */
-    background-color: #8B4513; /* 棕色 */
+    width: 10px;        /* 樹幹寬度固定 */
+    height: 30%;        /* 樹幹高度佔 #obstacle 的 30% (較小的比例，讓樹冠變化更明顯) */
+    background-color: #8B4513; 
     border-radius: 2px;
 }
 
-/* 使用 ::after 繪製樹冠 (綠色圓形) */
+/* 繪製樹冠 (綠色圓形) */
 #obstacle::after {
     content: '';
     position: absolute;
+    /* 樹冠佔據了頂部 70% 的高度 */
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 40px;        /* 樹冠寬度 (與 #obstacle 相同) */
-    height: 40px;       /* 樹冠高度 */
-    background-color: #4CAF50; /* 綠色 */
+    width: 40px;        /* 樹冠寬度固定 */
+    height: 70%;        /* 樹冠高度佔 #obstacle 的 70% */
+    background-color: #4CAF50; 
     border-radius: 50%; /* 圓形 */
 }
 
-/* 障礙物移動動畫 (由 JS 呼叫，並動態設定時間) */
+/* 障礙物移動動畫 */
 @keyframes moveObstacle {
     from {
-        right: -40px; /* 將起始點設為 #obstacle 寬度 */
+        right: -40px; 
     }
     to {
         right: 100%;
