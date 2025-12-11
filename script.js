@@ -33,7 +33,7 @@ function handleJump() {
     
     // 步驟 1: 移除 jump class
     player.classList.remove('jump');
-    // 步驟 2: 強制瀏覽器重繪/重計算 (這是重新觸發 CSS 動畫的關鍵！)
+    // 步驟 2: 強制瀏覽器重繪/重計算 (解決無法重複觸發跳躍的關鍵)
     void player.offsetWidth; 
     
     // 步驟 3: 加上 jump class，啟動動畫
