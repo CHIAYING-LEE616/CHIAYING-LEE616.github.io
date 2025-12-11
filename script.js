@@ -1,4 +1,4 @@
-// --- 1. 取得 DOM 元素 ---
+   // --- 1. 取得 DOM 元素 ---
 const player = document.getElementById('player');
 const gameContainer = document.getElementById('game-container');
 const obstacle = document.getElementById('obstacle');
@@ -28,45 +28,52 @@ function handleJump() {
         return;
     }
 
-    // 啟動跳躍
     isJumping = true;
     jumpCount++;
     
-    // 移除舊的跳躍 class，強制重繪，以便重新啟動動畫
+    // 步驟 1: 移除 jump class (即使它可能已經被 animationend 移除)
     player.classList.remove('jump');
+    // 步驟 2: 強制瀏覽器重繪/重計算 (這是重新觸發 CSS 動畫的關鍵)
     void player.offsetWidth; 
     
-    // 加上跳躍 class，啟動 CSS 動畫
+    // 步驟 3: 加上 jump class，啟動動畫
     player.classList.add('jump');
 }
 
-// 監聽 CSS 動畫結束事件 (用於判斷是否回到地面，並重置跳躍計數)
+// 監聽 CSS 動畫結束事件
 player.addEventListener('animationend', (event) => {
+    // 只有在 'playerJump' 動畫結束時才執行邏輯
     if (event.animationName === 'playerJump') {
-        // 確保動畫播放完畢後，如果主角真的在地面位置，則重置跳躍計數
+        
+        // 判斷主角是否已經落回地面位置 (bottom: 20px)
+        // 由於我們在 CSS 動畫中使用了 forwards，主角會停在 100% 的位置 (20px)
         const playerBottom = parseInt(window.getComputedStyle(player).bottom);
-        if (playerBottom <= 20) { // 20px 是地面高度
+        
+        // 如果主角在地面，重置跳躍計數
+        if (playerBottom <= 20) { 
              jumpCount = 0;
         }
+        
+        isJumping = false; 
     }
 });
 
 
 // --- 4. 障礙物生成與移動 ---
 function generateObstacle() {
-    // 移除舊的障礙物動畫，準備重新設定
+    // 移除舊的動畫，準備設定新的速度
     obstacle.style.animation = 'none';
     
-    // 隨機障礙物速度 (讓遊戲更有挑戰性，範圍從 1.5s (快) 到 4s (慢))
+    // 隨機障礙物速度 (1.5s (快) 到 4s (慢))
     const randomDuration = Math.random() * 2.5 + 1.5; 
     
     // 隨機障礙物高度
     const randomHeight = Math.random() < 0.5 ? 40 : 60; 
     obstacle.style.height = `${randomHeight}px`;
-    obstacle.style.width = '20px'; // 保持寬度一致
+    obstacle.style.width = '20px';
 
     // 重新設定動畫，使用隨機速度
-    obstacle.style.animation = `moveObstacle ${randomDuration}s linear infinite`;
+    obstacle.style.animation = `moveObstacle ${randomDuration}s linear forwards`; // 使用 forwards 確保動畫跑完
 }
 
 
@@ -74,11 +81,10 @@ function generateObstacle() {
 function checkCollision() {
     if (isGameOver) return;
     
-    // 獲取元素在視口中的位置和大小
     const playerRect = player.getBoundingClientRect();
     const obstacleRect = obstacle.getBoundingClientRect();
 
-    // 碰撞條件：四個邊界是否重疊
+    // 判斷水平和垂直是否重疊
     const horizontalOverlap = 
         playerRect.left < obstacleRect.right && 
         playerRect.right > obstacleRect.left;
@@ -102,20 +108,19 @@ function gameOver() {
     clearInterval(scoreInterval);
 
     // 停止所有動畫
-    player.style.animation = 'none'; // 停止主角呼吸/站立動畫
-    obstacle.style.animation = 'none'; // 停止障礙物移動
-    groundLine.style.animation = 'none'; // 停止地面移動
+    player.style.animation = 'none'; 
+    obstacle.style.animation = 'none'; 
+    groundLine.style.animation = 'none'; 
 
-    // 顯示遊戲結束畫面 (使用內建 alert，您可以替換成更美觀的 DOM 彈窗)
+    // 顯示遊戲結束訊息
     alert(`💥 遊戲結束！您的最終分數是: ${Math.floor(score / 10)} 分\n\n按下「Space」或「上鍵」重新開始！`);
 }
 
 // --- 7. 遊戲主循環 ---
 function gameLoop() {
-    // 持續檢查碰撞
     checkCollision();
     
-    // 透過 requestAnimationFrame 實現更流暢的動畫和循環
+    // 透過 requestAnimationFrame 實現平滑循環
     if (!isGameOver) {
         requestAnimationFrame(gameLoop);
     }
@@ -123,7 +128,7 @@ function gameLoop() {
 
 // --- 8. 遊戲啟動 ---
 function startGame() {
-    if (!isGameOver) return; // 避免重複啟動
+    if (!isGameOver) return; 
 
     // 重置狀態
     isGameOver = false;
@@ -138,15 +143,14 @@ function startGame() {
     obstacle.style.right = '-20px'; 
     obstacle.style.height = '40px'; 
     
-    // 顯示初始分數
     scoreDisplay.textContent = '分數: 0'; 
     
     // 啟動障礙物生成與移動
     generateObstacle();
-    // 設定定時器：讓障礙物在移動結束前重新生成
+    // 設定定時器：讓障礙物在 3 秒左右重新生成
     obstacleInterval = setInterval(generateObstacle, 3000); 
     
-    // 設定定時器：分數計算 (每 100 毫秒加分)
+    // 設定定時器：分數計算
     scoreInterval = setInterval(() => {
         score++;
         scoreDisplay.textContent = `分數: ${Math.floor(score / 10)}`;
@@ -161,19 +165,18 @@ function startGame() {
 document.addEventListener('keydown', (event) => {
     // Space (空白鍵) 或 ArrowUp (上箭頭)
     if (event.code === 'Space' || event.code === 'ArrowUp') {
-        event.preventDefault(); // 防止按鍵默認行為
+        event.preventDefault(); 
         handleJump();
     }
 });
 
-// 監聽點擊事件 (用於移動設備和開始遊戲)
+// 監聽點擊事件
 gameContainer.addEventListener('click', () => {
     handleJump();
 });
 
 
-// 初始提示與遊戲開始
+// 初始提示
 document.addEventListener('DOMContentLoaded', () => {
-    // 遊戲啟動時的初始提示
     alert('按下「Space」或「上鍵」開始跑酷遊戲！');
 });
