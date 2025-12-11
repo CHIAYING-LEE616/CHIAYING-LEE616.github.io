@@ -35,7 +35,7 @@ function applyGravity() {
         currentBottom = GROUND_POSITION;
         player.style.bottom = `${currentBottom}px`;
         
-        // 落地清理：重置跳躍計數和定時器
+        // 落地清理：重置跳躍計數和定時器 (解決只能跳一次的問題)
         velocityY = 0;
         isJumping = false;
         jumpCount = 0;          
@@ -65,6 +65,7 @@ function handleJump() {
 
     jumpCount++;
     isJumping = true;
+    // 重設向上的初始速度，實現新鮮的跳躍或雙重跳
     velocityY = JUMP_VELOCITY; 
     
     if (jumpTimer === null) {
@@ -73,7 +74,7 @@ function handleJump() {
 }
 
 
-// --- 4. 障礙物生成與移動 (速度和高度調整) ---
+// --- 4. 障礙物生成與移動 (速度和難度調整) ---
 function generateObstacle() {
     // 步驟 1: 移除舊的動畫，將障礙物重置到右側起始點
     obstacle.style.animation = 'none';
@@ -87,8 +88,9 @@ function generateObstacle() {
     // 障礙物速度：縮短動畫時間範圍 (1.0 秒 ~ 2.5 秒) 以加快速度
     const randomDuration = Math.random() * 1.5 + 1.0; 
     
-    // 障礙物高度：隨機高度 (例如 50px 到 100px 之間)，配合 CSS 百分比縮放
-    const randomHeight = Math.random() * 50 + 50; 
+    // 障礙物高度：隨機高度 (50px 到 150px 之間)
+    // 高度超過約 112px 的樹木需要雙重跳才能通過！
+    const randomHeight = Math.random() * 100 + 50; // 50 + (0~100) = 50~150
     
     // 應用尺寸
     obstacle.style.height = `${randomHeight}px`; 
